@@ -51,6 +51,7 @@ watch(collectionId, () => {
 </script>
 
 <template>
+  <!-- Page: Collection detail -->
   <section class="page">
     <header class="page__header">
       <h1 class="page__title">{{ detail?.name ?? '题单' }}</h1>

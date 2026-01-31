@@ -6,6 +6,10 @@
  */
 import { onMounted, onUnmounted, type Ref } from 'vue'
 
+/**
+ * Keep `--layout-header-height` in sync with the header element height.
+ * @param headerRef - Ref to the sticky header element.
+ */
 export function useLayoutHeaderHeight(headerRef: Ref<HTMLElement | null>): void {
   let ro: ResizeObserver | null = null
 
@@ -29,4 +33,3 @@ export function useLayoutHeaderHeight(headerRef: Ref<HTMLElement | null>): void 
     window.removeEventListener('resize', update)
   })
 }
-

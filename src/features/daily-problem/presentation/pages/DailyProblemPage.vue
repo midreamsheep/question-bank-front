@@ -21,6 +21,7 @@ let observer: IntersectionObserver | null = null
 
 /**
  * Append items without duplicates.
+ * @param next - Next items to append.
  */
 function appendUnique(next: DailyProblemSummary[]): void {
   const seen = new Set(items.value.map((i) => i.id))
@@ -33,6 +34,10 @@ function appendUnique(next: DailyProblemSummary[]): void {
   items.value = merged
 }
 
+/**
+ * Load next history page and append to the feed.
+ * @returns Promise resolved when loading completes.
+ */
 async function loadNextPage(): Promise<void> {
   if (loading.value || loadingMore.value) return
   if (!hasMore.value) return
@@ -90,37 +95,45 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <section class="page">
+  <!-- Page: Daily problem -->
+  <section class="page daily-feed">
     <header class="page__header">
       <h1 class="page__title">每日一题</h1>
       <p class="helper">向下滚动会自动加载更早的题。</p>
     </header>
-    <div class="card card--stack">
-      <p v-if="errorMessage" class="helper helper--error">{{ errorMessage }}</p>
-      <p v-else-if="loading" class="helper">加载中...</p>
-      <template v-else>
-        <template v-if="items.length">
-          <div v-for="group in groups" :key="group.day" class="card card--stack">
-            <h2 class="card__title">{{ group.day }}</h2>
-            <ul class="list">
-              <li v-for="item in group.items" :key="item.id" class="list__item">
-                <div>
-                  <strong>{{ item.problem.title }}</strong>
-                  <p class="helper">{{ item.copywriting || '暂无文案。' }}</p>
-                </div>
-                <router-link class="link" :to="`/problems/${item.problem.id}`">查看</router-link>
-              </li>
-            </ul>
-          </div>
-          <div ref="sentinelRef" style="height: 1px;"></div>
-          <p v-if="loadingMore" class="helper">正在加载更多...</p>
-          <p v-else-if="!hasMore" class="helper">没有更多了。</p>
-          <button v-else class="button button--ghost" type="button" :disabled="loadingMore" @click="loadNextPage">
-            加载更多
-          </button>
-        </template>
-        <p v-else class="helper">暂无每日一题。</p>
-      </template>
-    </div>
+    <!-- Feed: no outer heavy card; keep the page light on the paper background. -->
+	    <div class="daily-feed__panel">
+	      <p v-if="errorMessage" class="helper helper--error">{{ errorMessage }}</p>
+	      <p v-else-if="loading" class="helper">加载中...</p>
+	      <template v-else>
+	        <template v-if="items.length">
+	          <!-- Daily groups: avoid nested heavy cards; keep a light separation. -->
+	          <div v-for="group in groups" :key="group.day" class="daily-feed__group">
+	            <div class="daily-feed__dayRow">
+	              <h2 class="daily-feed__day">{{ group.day }}</h2>
+	              <span class="daily-feed__count">{{ group.items.length }} 题</span>
+	            </div>
+	            <ul class="daily-entry__list">
+	              <li v-for="item in group.items" :key="item.id" class="daily-entry__item">
+	                <router-link class="daily-entry__link" :to="`/problems/${item.problem.id}`">
+	                  <strong class="daily-entry__title">{{ item.problem.title }}</strong>
+	                  <span class="daily-entry__sub">{{ item.copywriting || '暂无文案。' }}</span>
+	                  <span class="daily-entry__chevron" aria-hidden="true">→</span>
+	                </router-link>
+	              </li>
+	            </ul>
+	          </div>
+	          <div ref="sentinelRef" class="daily-feed__sentinel"></div>
+	          <div class="daily-feed__footer">
+	            <p v-if="loadingMore" class="helper">正在加载更多...</p>
+	            <p v-else-if="!hasMore" class="helper">没有更多了。</p>
+	            <button v-else class="button button--ghost" type="button" :disabled="loadingMore" @click="loadNextPage">
+	              加载更多
+	            </button>
+	          </div>
+	        </template>
+	        <p v-else class="helper">暂无每日一题。</p>
+	      </template>
+	    </div>
   </section>
 </template>

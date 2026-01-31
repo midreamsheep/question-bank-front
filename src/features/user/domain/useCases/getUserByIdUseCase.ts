@@ -9,6 +9,11 @@ export type GetUserByIdUseCase = {
   execute(id: string): Promise<UserProfile>
 }
 
+/**
+ * Create get-user-by-id use case.
+ * @param repository - User repository.
+ * @returns Use case implementation.
+ */
 export function createGetUserByIdUseCase(repository: UserRepository): GetUserByIdUseCase {
   return {
     async execute(id: string): Promise<UserProfile> {
@@ -16,4 +21,3 @@ export function createGetUserByIdUseCase(repository: UserRepository): GetUserByI
     },
   }
 }
-

@@ -27,6 +27,7 @@ onMounted(() => {
 </script>
 
 <template>
+  <!-- Page: Home -->
   <section class="page">
     <header class="page__header">
       <h1 class="page__title">数学物理题目分享站</h1>

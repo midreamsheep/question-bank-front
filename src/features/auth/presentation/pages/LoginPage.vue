@@ -50,6 +50,7 @@ async function handleLogin(): Promise<void> {
 </script>
 
 <template>
+  <!-- Page: Login -->
   <section class="login-page">
     <div class="login-panel">
       <header class="page__header">

@@ -33,6 +33,11 @@ export class HttpCollectionRepository implements CollectionRepository {
     this.httpClient = options.httpClient
   }
 
+  /**
+   * List public collections for browsing.
+   * @param query - List query.
+   * @returns Paged collection summaries.
+   */
   async list(query: CollectionListQuery): Promise<PageResponse<CollectionSummary>> {
     const response = await this.httpClient.request<ApiResponse<PageResponse<CollectionSummary>>>(
       {
@@ -52,6 +57,11 @@ export class HttpCollectionRepository implements CollectionRepository {
     }
   }
 
+  /**
+   * List current user's collections (mine).
+   * @param query - List query.
+   * @returns Paged collection summaries.
+   */
   async listMine(query: CollectionListQuery): Promise<PageResponse<CollectionSummary>> {
     const response = await this.httpClient.request<ApiResponse<PageResponse<CollectionSummary>>>(
       {
@@ -75,6 +85,11 @@ export class HttpCollectionRepository implements CollectionRepository {
     }
   }
 
+  /**
+   * Get collection detail by id.
+   * @param id - Collection id.
+   * @returns Collection detail.
+   */
   async getDetail(id: string): Promise<CollectionDetail> {
     const response = await this.httpClient.request<ApiResponse<CollectionDetail>>({
       method: 'GET',
@@ -92,6 +107,11 @@ export class HttpCollectionRepository implements CollectionRepository {
     }
   }
 
+  /**
+   * Get collection detail by share key (public share entry).
+   * @param shareKey - Share key.
+   * @returns Collection detail.
+   */
   async getByShareKey(shareKey: string): Promise<CollectionDetail> {
     const response = await this.httpClient.request<ApiResponse<CollectionDetail>>({
       method: 'GET',
@@ -109,6 +129,11 @@ export class HttpCollectionRepository implements CollectionRepository {
     }
   }
 
+  /**
+   * Create a new collection.
+   * @param input - Create input.
+   * @returns Create response.
+   */
   async create(input: CreateCollectionInput): Promise<CollectionCreateResponse> {
     const response = await this.httpClient.request<ApiResponse<CollectionCreateResponse>>({
       method: 'POST',
@@ -119,6 +144,12 @@ export class HttpCollectionRepository implements CollectionRepository {
     return { ...data, id: String(data.id) }
   }
 
+  /**
+   * Update a collection.
+   * @param id - Collection id.
+   * @param input - Update input.
+   * @returns Updated collection detail.
+   */
   async update(id: string, input: UpdateCollectionInput): Promise<CollectionDetail> {
     const response = await this.httpClient.request<ApiResponse<CollectionDetail>>({
       method: 'PUT',
@@ -137,6 +168,11 @@ export class HttpCollectionRepository implements CollectionRepository {
     }
   }
 
+  /**
+   * Delete a collection.
+   * @param id - Collection id.
+   * @returns Promise resolved when deletion completes.
+   */
   async delete(id: string): Promise<void> {
     const response = await this.httpClient.request<ApiResponse<unknown>>({
       method: 'DELETE',
@@ -145,6 +181,12 @@ export class HttpCollectionRepository implements CollectionRepository {
     unwrapApiResponse(response)
   }
 
+  /**
+   * Add a problem item into a collection.
+   * @param id - Collection id.
+   * @param input - Item input.
+   * @returns Promise resolved when the operation completes.
+   */
   async addItem(id: string, input: AddCollectionItemInput): Promise<void> {
     const response = await this.httpClient.request<ApiResponse<unknown>>({
       method: 'POST',
@@ -154,6 +196,12 @@ export class HttpCollectionRepository implements CollectionRepository {
     unwrapApiResponse(response)
   }
 
+  /**
+   * Reorder collection items.
+   * @param id - Collection id.
+   * @param input - Reorder input.
+   * @returns Promise resolved when the operation completes.
+   */
   async reorderItems(id: string, input: ReorderCollectionInput): Promise<void> {
     const response = await this.httpClient.request<ApiResponse<unknown>>({
       method: 'PUT',

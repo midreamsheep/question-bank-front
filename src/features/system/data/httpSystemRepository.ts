@@ -23,6 +23,10 @@ export class HttpSystemRepository implements SystemRepository {
     this.httpClient = options.httpClient
   }
 
+  /**
+   * Check backend health status.
+   * @returns Health status.
+   */
   async checkHealth(): Promise<HealthStatus> {
     const response = await this.httpClient.request<ApiResponse<null>>({
       method: 'GET',

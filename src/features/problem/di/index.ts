@@ -52,6 +52,7 @@ export const problemDiKey: InjectionKey<ProblemDi> = Symbol('problemDi')
  * Create problem DI dependencies.
  * @param options DI options
  * @param options.httpClient HTTP client
+ * @param options.useMock Use mock repositories instead of HTTP ones
  * @returns Problem DI container
  */
 export function makeProblemDi(options: { httpClient: HttpClient; useMock?: boolean }): ProblemDi {

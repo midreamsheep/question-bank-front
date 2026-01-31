@@ -68,6 +68,7 @@ async function handleRevoke(): Promise<void> {
 </script>
 
 <template>
+  <!-- Page: Admin daily problem -->
   <section class="page">
     <header class="page__header">
       <h1 class="page__title">每日一题管理</h1>

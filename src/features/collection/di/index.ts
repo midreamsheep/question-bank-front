@@ -52,6 +52,7 @@ export const collectionDiKey: InjectionKey<CollectionDi> = Symbol('collectionDi'
  * Create collection DI dependencies.
  * @param options DI options
  * @param options.httpClient HTTP client
+ * @param options.useMock Use mock repositories instead of HTTP ones
  * @returns Collection DI container
  */
 export function makeCollectionDi(options: { httpClient: HttpClient; useMock?: boolean }): CollectionDi {

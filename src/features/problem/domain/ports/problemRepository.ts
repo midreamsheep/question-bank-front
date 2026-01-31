@@ -7,7 +7,6 @@ import type {
   ProblemDetail,
   ProblemListQuery,
   ProblemCreateResponse,
-  PublishProblemInput,
   ProblemStatusResponse,
   ProblemSummary,
   UpdateProblemInput,
@@ -20,7 +19,7 @@ export type ProblemRepository = {
   getByShareKey(shareKey: string): Promise<ProblemDetail>
   create(input: CreateProblemInput): Promise<ProblemCreateResponse>
   update(id: string, input: UpdateProblemInput): Promise<ProblemStatusResponse>
-  publish(id: string, input?: PublishProblemInput): Promise<ProblemStatusResponse>
+  publish(id: string): Promise<ProblemStatusResponse>
   disable(id: string): Promise<ProblemStatusResponse>
   delete(id: string): Promise<void>
 }

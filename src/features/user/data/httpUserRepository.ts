@@ -20,10 +20,19 @@ export type HttpUserRepositoryOptions = {
 export class HttpUserRepository implements UserRepository {
   private readonly httpClient: HttpClient
 
+  /**
+   * Create HTTP user repository.
+   * @param options - Repository options.
+   * @param options.httpClient - HTTP client.
+   */
   constructor(options: HttpUserRepositoryOptions) {
     this.httpClient = options.httpClient
   }
 
+  /**
+   * Get current user profile.
+   * @returns User profile.
+   */
   async getMe(): Promise<UserProfile> {
     const response = await this.httpClient.request<ApiResponse<UserProfile>>({
       method: 'GET',
@@ -37,6 +46,11 @@ export class HttpUserRepository implements UserRepository {
     }
   }
 
+  /**
+   * Get user profile by id.
+   * @param id - User id.
+   * @returns User profile.
+   */
   async getById(id: string): Promise<UserProfile> {
     const response = await this.httpClient.request<ApiResponse<UserProfile>>({
       method: 'GET',
@@ -50,6 +64,11 @@ export class HttpUserRepository implements UserRepository {
     }
   }
 
+  /**
+   * Update current user's profile.
+   * @param input - Update input.
+   * @returns Updated profile.
+   */
   async updateProfile(input: UpdateUserProfileInput): Promise<UserProfile> {
     const response = await this.httpClient.request<ApiResponse<UserProfile>>({
       method: 'PUT',
@@ -64,6 +83,11 @@ export class HttpUserRepository implements UserRepository {
     }
   }
 
+  /**
+   * Change current user's password.
+   * @param input - Change password input.
+   * @returns Promise resolved when operation completes.
+   */
   async changePassword(input: ChangePasswordInput): Promise<void> {
     const response = await this.httpClient.request<ApiResponse<unknown>>({
       method: 'PUT',
@@ -73,6 +97,10 @@ export class HttpUserRepository implements UserRepository {
     unwrapApiResponse(response)
   }
 
+  /**
+   * Get derived stats for current user.
+   * @returns User stats.
+   */
   async getStats(): Promise<UserStats> {
     // Derived stats: query totals from existing paging endpoints.
     const getTotal = async (url: string, query?: Record<string, string | number | boolean | null | undefined>) => {

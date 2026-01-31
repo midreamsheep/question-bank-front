@@ -62,6 +62,7 @@ export const adminDiKey: InjectionKey<AdminDi> = Symbol('adminDi')
  * Create admin DI dependencies.
  * @param options DI options
  * @param options.httpClient HTTP client
+ * @param options.useMock Use mock repositories instead of HTTP ones
  * @returns Admin DI container
  */
 export function makeAdminDi(options: { httpClient: HttpClient; useMock?: boolean }): AdminDi {

@@ -14,6 +14,10 @@ type MathJaxWindow = Window & {
   }
 }
 
+/**
+ * Get candidate MathJax script URLs (env-configurable with fallbacks).
+ * @returns List of MathJax script URLs to try.
+ */
 function getMathJaxUrls(): string[] {
   const raw = (import.meta.env.VITE_MATHJAX_URLS as string | undefined) ?? ''
   const urls = raw
@@ -30,6 +34,11 @@ function getMathJaxUrls(): string[] {
   ]
 }
 
+/**
+ * Load a script tag into document head.
+ * @param src - Script URL.
+ * @returns Promise resolved when script loads.
+ */
 function loadScript(src: string): Promise<void> {
   return new Promise((resolve, reject) => {
     const script = document.createElement('script')
@@ -42,6 +51,10 @@ function loadScript(src: string): Promise<void> {
   })
 }
 
+/**
+ * Wait for MathJax startup promise to settle (best-effort).
+ * @returns Promise resolved after waiting.
+ */
 async function waitReady(): Promise<void> {
   const mj = (window as MathJaxWindow).MathJax
   const startup = mj?.startup?.promise
@@ -84,4 +97,3 @@ export async function ensureMathJaxLoaded(): Promise<void> {
     }
   }
 }
-

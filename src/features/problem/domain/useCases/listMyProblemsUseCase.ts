@@ -9,6 +9,11 @@ export type ListMyProblemsUseCase = {
   execute(query: ProblemListQuery): Promise<PageResponse<ProblemSummary>>
 }
 
+/**
+ * Create list-my-problems use case.
+ * @param repository - Problem repository.
+ * @returns Use case implementation.
+ */
 export function createListMyProblemsUseCase(repository: ProblemRepository): ListMyProblemsUseCase {
   return {
     async execute(query: ProblemListQuery): Promise<PageResponse<ProblemSummary>> {
@@ -16,4 +21,3 @@ export function createListMyProblemsUseCase(repository: ProblemRepository): List
     },
   }
 }
-

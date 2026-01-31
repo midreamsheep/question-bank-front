@@ -34,6 +34,7 @@ import { systemDiKey, makeSystemDi } from './features/system/di'
 import { userDiKey, makeUserDi, userAccountRoutes, userPublicRoutes } from './features/user/di'
 import { commentDiKey, makeCommentDi } from './features/comment/di'
 import { ensureMathJaxLoaded } from './infrastructure/latex/ensureMathJax'
+import { aiDiKey, makeAiDi } from './features/ai/di'
 
 const app = createApp(App)
 
@@ -57,6 +58,7 @@ const taxonomyDi = makeTaxonomyDi({ httpClient, useMock: runtimeConfig.useMock }
 const systemDi = makeSystemDi({ httpClient, useMock: runtimeConfig.useMock })
 const userDi = makeUserDi({ httpClient, useMock: runtimeConfig.useMock })
 const commentDi = makeCommentDi({ httpClient, useMock: runtimeConfig.useMock })
+const aiDi = makeAiDi({ httpClient, useMock: runtimeConfig.useMock })
 
 app.provide(authDiKey, authDi)
 app.provide(problemDiKey, problemDi)
@@ -68,6 +70,7 @@ app.provide(taxonomyDiKey, taxonomyDi)
 app.provide(systemDiKey, systemDi)
 app.provide(userDiKey, userDi)
 app.provide(commentDiKey, commentDi)
+app.provide(aiDiKey, aiDi)
 
 const publicRoutes: RouteRecordRaw[] = [
   ...homeRoutes,

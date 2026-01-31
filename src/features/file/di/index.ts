@@ -7,13 +7,13 @@ import type { HttpClient } from '../../../infrastructure/http'
 import { HttpFileRepository } from '../data/httpFileRepository'
 import { MockFileRepository } from '../mock/mockFileRepository'
 import { createUploadFileUseCase } from '../domain/useCases/uploadFileUseCase'
-import { createGetPresignedUrlUseCase } from '../domain/useCases/getPresignedUrlUseCase'
+import { createGetShareKeyUseCase } from '../domain/useCases/getShareKeyUseCase'
 import type { UploadFileUseCase } from '../domain/useCases/uploadFileUseCase'
-import type { GetPresignedUrlUseCase } from '../domain/useCases/getPresignedUrlUseCase'
+import type { GetShareKeyUseCase } from '../domain/useCases/getShareKeyUseCase'
 
 export type FileDi = {
   uploadUseCase: UploadFileUseCase
-  presignedUrlUseCase: GetPresignedUrlUseCase
+  shareKeyUseCase: GetShareKeyUseCase
 }
 
 /**
@@ -25,6 +25,7 @@ export const fileDiKey: InjectionKey<FileDi> = Symbol('fileDi')
  * Create file DI dependencies.
  * @param options DI options
  * @param options.httpClient HTTP client
+ * @param options.useMock Use mock repositories instead of HTTP ones
  * @returns File DI container
  */
 export function makeFileDi(options: { httpClient: HttpClient; useMock?: boolean }): FileDi {
@@ -33,7 +34,7 @@ export function makeFileDi(options: { httpClient: HttpClient; useMock?: boolean 
     : new HttpFileRepository({ httpClient: options.httpClient })
   return {
     uploadUseCase: createUploadFileUseCase(repository),
-    presignedUrlUseCase: createGetPresignedUrlUseCase(repository),
+    shareKeyUseCase: createGetShareKeyUseCase(repository),
   }
 }
 

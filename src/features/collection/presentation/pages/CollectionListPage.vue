@@ -34,21 +34,26 @@ onMounted(() => {
 </script>
 
 <template>
-  <section class="page">
+  <!-- Page: Collection list -->
+  <section class="page collection-list">
     <header class="page__header">
       <h1 class="page__title">题单</h1>
     </header>
-    <div class="card card--stack">
+    <div class="card card--stack collection-list__panel">
       <p v-if="errorMessage" class="helper helper--error">{{ errorMessage }}</p>
       <p v-else-if="loading" class="helper">加载中...</p>
       <template v-else>
-        <ul v-if="result?.items?.length" class="list">
-          <li v-for="item in result.items" :key="item.id" class="list__item">
-            <div>
-              <strong>{{ item.name }}</strong>
-              <p class="helper">{{ item.description || '暂无描述。' }}</p>
-            </div>
-            <router-link class="link" :to="`/collections/${item.id}`">查看</router-link>
+        <ul v-if="result?.items?.length" class="collection-list__list">
+          <li v-for="item in result.items" :key="item.id" class="collection-list__item">
+            <router-link class="collection-list__link" :to="`/collections/${item.id}`">
+              <div class="collection-list__titleRow">
+                <strong class="collection-list__title">{{ item.name }}</strong>
+                <span class="collection-list__meta">
+                  <span class="collection-list__chip">{{ item.itemCount }} 题</span>
+                </span>
+              </div>
+              <span class="collection-list__desc">{{ item.description || '暂无描述。' }}</span>
+            </router-link>
           </li>
         </ul>
         <p v-else class="helper">暂无题单。</p>

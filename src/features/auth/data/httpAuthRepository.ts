@@ -28,6 +28,11 @@ export class HttpAuthRepository implements AuthRepository {
     this.httpClient = options.httpClient
   }
 
+  /**
+   * Login by username/password.
+   * @param input - Login input.
+   * @returns Login result.
+   */
   async login(input: LoginInput): Promise<LoginResult> {
     const response = await this.httpClient.request<ApiResponse<LoginResult>>({
       method: 'POST',
@@ -37,6 +42,11 @@ export class HttpAuthRepository implements AuthRepository {
     return unwrapApiResponse(response)
   }
 
+  /**
+   * Register a new user.
+   * @param input - Register input.
+   * @returns Register result.
+   */
   async register(input: RegisterInput): Promise<RegisterResult> {
     const response = await this.httpClient.request<ApiResponse<RegisterResult>>({
       method: 'POST',
@@ -46,6 +56,10 @@ export class HttpAuthRepository implements AuthRepository {
     return unwrapApiResponse(response)
   }
 
+  /**
+   * Logout current session.
+   * @returns Promise resolved when logout completes.
+   */
   async logout(): Promise<void> {
     const response = await this.httpClient.request<ApiResponse<unknown>>({
       method: 'POST',

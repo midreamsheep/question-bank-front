@@ -60,18 +60,20 @@ export type ProblemPayload = {
   solutionFormat?: 'MARKDOWN' | 'LATEX' | null
   solution?: string | null
   visibility: Visibility
-  tagIds: number[]
+  /**
+   * Tag names to set for the problem.
+   *
+   * Backend semantics:
+   * - `tags` missing/undefined/null: keep existing tags (for update).
+   * - `tags: []`: clear all tags.
+   * - `tags: ["a","b"]`: replace with provided tags (backend auto-creates/reuses).
+   */
+  tags?: string[] | null
 }
 
 export type CreateProblemInput = ProblemPayload
 
 export type UpdateProblemInput = ProblemPayload
-
-export type PublishProblemInput = {
-  subject?: Subject
-  tagIds?: number[]
-  newTags?: string[]
-}
 
 export type ProblemCreateResponse = {
   id: string

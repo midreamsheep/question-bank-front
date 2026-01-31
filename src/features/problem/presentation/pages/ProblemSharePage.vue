@@ -47,6 +47,7 @@ watch(shareKey, () => {
 </script>
 
 <template>
+  <!-- Page: Problem share -->
   <section class="page">
     <header class="page__header">
       <h1 class="page__title">{{ detail?.title ?? '分享题目' }}</h1>

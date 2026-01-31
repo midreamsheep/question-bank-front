@@ -11,7 +11,6 @@ import type {
   ProblemCreateResponse,
   ProblemDetail,
   ProblemListQuery,
-  PublishProblemInput,
   ProblemStatusResponse,
   ProblemSummary,
   ProblemTag,
@@ -34,6 +33,11 @@ export class HttpProblemRepository implements ProblemRepository {
     this.httpClient = options.httpClient
   }
 
+  /**
+   * Map backend tag objects into frontend tag models.
+   * @param tags - Raw tag array from backend.
+   * @returns Normalized tag list (or undefined when absent).
+   */
   private mapTags(tags?: Array<{ id: unknown; name: unknown }> | null): ProblemTag[] | undefined {
     if (!tags) return undefined
     return tags
@@ -44,6 +48,11 @@ export class HttpProblemRepository implements ProblemRepository {
       .filter((t) => Number.isFinite(t.id) && t.name.trim().length > 0)
   }
 
+  /**
+   * List problems for the public list page.
+   * @param query - List query.
+   * @returns Paged problem summaries.
+   */
   async list(query: ProblemListQuery): Promise<PageResponse<ProblemSummary>> {
     const response = await this.httpClient.request<ApiResponse<PageResponse<ProblemSummary>>>({
       method: 'GET',
@@ -65,6 +74,11 @@ export class HttpProblemRepository implements ProblemRepository {
     }
   }
 
+  /**
+   * List current user's problems (mine).
+   * @param query - List query.
+   * @returns Paged problem summaries.
+   */
   async listMine(query: ProblemListQuery): Promise<PageResponse<ProblemSummary>> {
     const response = await this.httpClient.request<ApiResponse<PageResponse<ProblemSummary>>>({
       method: 'GET',
@@ -87,6 +101,11 @@ export class HttpProblemRepository implements ProblemRepository {
     }
   }
 
+  /**
+   * Get problem detail by id.
+   * @param id - Problem id.
+   * @returns Problem detail.
+   */
   async getDetail(id: string): Promise<ProblemDetail> {
     const response = await this.httpClient.request<ApiResponse<ProblemDetail>>({
       method: 'GET',
@@ -101,6 +120,11 @@ export class HttpProblemRepository implements ProblemRepository {
     }
   }
 
+  /**
+   * Get problem detail by share key (public share entry).
+   * @param shareKey - Share key.
+   * @returns Problem detail.
+   */
   async getByShareKey(shareKey: string): Promise<ProblemDetail> {
     const response = await this.httpClient.request<ApiResponse<ProblemDetail>>({
       method: 'GET',
@@ -115,6 +139,11 @@ export class HttpProblemRepository implements ProblemRepository {
     }
   }
 
+  /**
+   * Create a new problem.
+   * @param input - Create input.
+   * @returns Create response.
+   */
   async create(input: CreateProblemInput): Promise<ProblemCreateResponse> {
     const response = await this.httpClient.request<ApiResponse<ProblemCreateResponse>>({
       method: 'POST',
@@ -128,6 +157,12 @@ export class HttpProblemRepository implements ProblemRepository {
     }
   }
 
+  /**
+   * Update a problem draft.
+   * @param id - Problem id.
+   * @param input - Update input.
+   * @returns Status response.
+   */
   async update(id: string, input: UpdateProblemInput): Promise<ProblemStatusResponse> {
     const response = await this.httpClient.request<ApiResponse<ProblemStatusResponse>>({
       method: 'PUT',
@@ -138,16 +173,25 @@ export class HttpProblemRepository implements ProblemRepository {
     return { ...data, id: String(data.id) }
   }
 
-  async publish(id: string, input?: PublishProblemInput): Promise<ProblemStatusResponse> {
+  /**
+   * Publish a problem.
+   * @param id - Problem id.
+   * @returns Status response.
+   */
+  async publish(id: string): Promise<ProblemStatusResponse> {
     const response = await this.httpClient.request<ApiResponse<ProblemStatusResponse>>({
       method: 'POST',
       url: `/problems/${id}/publish`,
-      body: input && Object.keys(input).length ? input : undefined,
     })
     const data = unwrapApiResponse(response)
     return { ...data, id: String(data.id) }
   }
 
+  /**
+   * Disable (take down) a published problem.
+   * @param id - Problem id.
+   * @returns Status response.
+   */
   async disable(id: string): Promise<ProblemStatusResponse> {
     const response = await this.httpClient.request<ApiResponse<ProblemStatusResponse>>({
       method: 'POST',
@@ -157,6 +201,11 @@ export class HttpProblemRepository implements ProblemRepository {
     return { ...data, id: String(data.id) }
   }
 
+  /**
+   * Delete a problem.
+   * @param id - Problem id.
+   * @returns Promise resolved when deletion completes.
+   */
   async delete(id: string): Promise<void> {
     const response = await this.httpClient.request<ApiResponse<unknown>>({
       method: 'DELETE',

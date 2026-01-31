@@ -9,6 +9,11 @@ export type ListMyCollectionsUseCase = {
   execute(query: CollectionListQuery): Promise<PageResponse<CollectionSummary>>
 }
 
+/**
+ * Create list-my-collections use case.
+ * @param repository - Collection repository.
+ * @returns Use case implementation.
+ */
 export function createListMyCollectionsUseCase(
   repository: CollectionRepository,
 ): ListMyCollectionsUseCase {
@@ -18,4 +23,3 @@ export function createListMyCollectionsUseCase(
     },
   }
 }
-

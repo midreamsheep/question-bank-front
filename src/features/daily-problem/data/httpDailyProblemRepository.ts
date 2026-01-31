@@ -23,6 +23,10 @@ export class HttpDailyProblemRepository implements DailyProblemRepository {
     this.httpClient = options.httpClient
   }
 
+  /**
+   * Get today's daily problem set.
+   * @returns Daily problem summaries.
+   */
   async getToday(): Promise<DailyProblemSummary[]> {
     const response = await this.httpClient.request<ApiResponse<DailyProblemSummary[]>>({
       method: 'GET',
@@ -36,6 +40,11 @@ export class HttpDailyProblemRepository implements DailyProblemRepository {
     }))
   }
 
+  /**
+   * Get daily problems by day.
+   * @param day - Day string (YYYY-MM-DD).
+   * @returns Daily problem summaries.
+   */
   async getByDay(day: string): Promise<DailyProblemSummary[]> {
     const response = await this.httpClient.request<ApiResponse<DailyProblemSummary[]>>({
       method: 'GET',
@@ -50,6 +59,11 @@ export class HttpDailyProblemRepository implements DailyProblemRepository {
     }))
   }
 
+  /**
+   * List daily problem history.
+   * @param query - History query.
+   * @returns Paged daily problem summaries.
+   */
   async listHistory(query: DailyProblemHistoryQuery): Promise<PageResponse<DailyProblemSummary>> {
     const response = await this.httpClient.request<ApiResponse<PageResponse<DailyProblemSummary>>>({
       method: 'GET',

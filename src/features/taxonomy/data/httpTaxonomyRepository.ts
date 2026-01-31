@@ -23,6 +23,11 @@ export class HttpTaxonomyRepository implements TaxonomyRepository {
     this.httpClient = options.httpClient
   }
 
+  /**
+   * List categories.
+   * @param query - Optional taxonomy query.
+   * @returns Categories list.
+   */
   async listCategories(query?: TaxonomyQuery): Promise<Category[]> {
     const response = await this.httpClient.request<ApiResponse<Category[]>>({
       method: 'GET',
@@ -32,6 +37,11 @@ export class HttpTaxonomyRepository implements TaxonomyRepository {
     return unwrapApiResponse(response)
   }
 
+  /**
+   * List problem types.
+   * @param query - Optional taxonomy query.
+   * @returns Problem types list.
+   */
   async listProblemTypes(query?: TaxonomyQuery): Promise<ProblemType[]> {
     const response = await this.httpClient.request<ApiResponse<ProblemType[]>>({
       method: 'GET',
@@ -41,6 +51,11 @@ export class HttpTaxonomyRepository implements TaxonomyRepository {
     return unwrapApiResponse(response)
   }
 
+  /**
+   * List tags.
+   * @param query - Optional taxonomy query.
+   * @returns Tags list.
+   */
   async listTags(query?: TaxonomyQuery): Promise<Tag[]> {
     const response = await this.httpClient.request<ApiResponse<Tag[]>>({
       method: 'GET',

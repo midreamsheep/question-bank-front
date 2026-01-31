@@ -41,6 +41,11 @@ async function loadCollections(): Promise<void> {
   }
 }
 
+/**
+ * Delete a collection (confirmed).
+ * @param item - Collection summary item.
+ * @returns Promise resolved when deletion finishes.
+ */
 async function handleDelete(item: CollectionSummary): Promise<void> {
   const ok = window.confirm('确定删除该题单吗？此操作不可恢复。')
   if (!ok) return
@@ -62,6 +67,10 @@ const shareLink = computed(() => {
   return `${window.location.origin}/collections/share/${sharing.value.shareKey}`
 })
 
+/**
+ * Copy current share link to clipboard (with prompt fallback).
+ * @returns Promise resolved after copy flow completes.
+ */
 async function handleCopyShareLink(): Promise<void> {
   if (!shareLink.value) return
   copying.value = true
@@ -79,6 +88,11 @@ async function handleCopyShareLink(): Promise<void> {
   }
 }
 
+/**
+ * Load shareKey for an UNLISTED collection and open the share modal.
+ * @param item - Collection summary item.
+ * @returns Promise resolved when share info is loaded.
+ */
 async function handleShare(item: CollectionSummary): Promise<void> {
   rowBusy.value = { id: item.id, action: 'share' }
   errorMessage.value = ''
@@ -103,6 +117,7 @@ onMounted(() => {
 </script>
 
 <template>
+  <!-- Page: My collections -->
   <section class="page">
     <header class="page__header">
       <h1 class="page__title">我的题单</h1>

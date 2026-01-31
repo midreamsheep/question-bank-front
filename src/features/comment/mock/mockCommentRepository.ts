@@ -12,6 +12,11 @@ import type {
 import { mockStore } from '../../../infrastructure/mock/mockStore'
 
 export class MockCommentRepository implements CommentRepository {
+  /**
+   * List comments for a problem (mock).
+   * @param query - List query.
+   * @returns Paged comments.
+   */
   async list(query: ListProblemCommentsQuery): Promise<PageResponse<ProblemComment>> {
     const page = query.page ?? 1
     const pageSize = query.pageSize ?? 20
@@ -26,6 +31,11 @@ export class MockCommentRepository implements CommentRepository {
     return { items, page, pageSize, total }
   }
 
+  /**
+   * Create a new comment (mock).
+   * @param input - Create input.
+   * @returns New comment id.
+   */
   async create(input: CreateProblemCommentInput): Promise<string> {
     const content = input.content.trim()
     if (!content) throw new Error('评论内容不能为空。')

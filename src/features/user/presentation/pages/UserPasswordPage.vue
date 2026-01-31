@@ -24,6 +24,10 @@ const canSubmit = computed(() => {
   return newPassword.value === confirmNewPassword.value
 })
 
+/**
+ * Submit password change request and force re-login on success.
+ * @returns Promise resolved after submit flow completes.
+ */
 async function handleSubmit(): Promise<void> {
   if (!canSubmit.value) {
     errorMessage.value = '请检查输入项。'
@@ -52,6 +56,7 @@ async function handleSubmit(): Promise<void> {
 </script>
 
 <template>
+  <!-- Page: Change password -->
   <section class="page page--narrow">
     <header class="page__header">
       <h1 class="page__title">修改密码</h1>

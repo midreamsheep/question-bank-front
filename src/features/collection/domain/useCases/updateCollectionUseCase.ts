@@ -9,6 +9,11 @@ export type UpdateCollectionUseCase = {
   execute(id: string, input: UpdateCollectionInput): Promise<CollectionDetail>
 }
 
+/**
+ * Create update-collection use case.
+ * @param repository - Collection repository.
+ * @returns Use case implementation.
+ */
 export function createUpdateCollectionUseCase(
   repository: CollectionRepository,
 ): UpdateCollectionUseCase {

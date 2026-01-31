@@ -61,6 +61,7 @@ async function handleRegister(): Promise<void> {
 </script>
 
 <template>
+  <!-- Page: Register -->
   <section class="login-page">
     <div class="login-panel">
       <header class="page__header">

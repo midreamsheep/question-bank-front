@@ -11,6 +11,7 @@ import { useFileDi } from '../../../file/di'
 import type { UserProfile } from '../../domain/models'
 import type { ProblemSummary, PageResponse as ProblemPageResponse } from '../../../problem/domain/models'
 import type { CollectionSummary, PageResponse as CollectionPageResponse } from '../../../collection/domain/models'
+import { toPublicFileUrl } from '../../../file/presentation/utils/fileShareUrl'
 
 const route = useRoute()
 const userDi = useUserDi()
@@ -56,18 +57,27 @@ const initials = computed(() => {
   return name.slice(0, 1).toUpperCase()
 })
 
+/**
+ * Resolve avatar URL from profile.avatarFileId (best-effort).
+ * @param next - Target profile (nullable).
+ * @returns Promise resolved after avatar is resolved.
+ */
 async function loadAvatar(next: UserProfile | null): Promise<void> {
   avatarUrl.value = ''
   const fileId = next?.avatarFileId?.trim?.() ? String(next.avatarFileId).trim() : ''
   if (!fileId) return
   try {
-    const res = await fileDi.presignedUrlUseCase.execute({ fileId, expiresSeconds: 3600 })
-    avatarUrl.value = res.url
+    const res = await fileDi.shareKeyUseCase.execute({ fileId })
+    avatarUrl.value = toPublicFileUrl({ shareKey: res.shareKey })
   } catch {
     avatarUrl.value = ''
   }
 }
 
+/**
+ * Load public profile by route userId.
+ * @returns Promise resolved when loading completes.
+ */
 async function loadProfile(): Promise<void> {
   if (!userId.value) {
     errorMessage.value = '用户ID无效。'
@@ -89,6 +99,11 @@ async function loadProfile(): Promise<void> {
   }
 }
 
+/**
+ * Load published problems of the author with paging.
+ * @param reset - Reset paging state and reload from page 1.
+ * @returns Promise resolved when request completes.
+ */
 async function loadProblems(reset = false): Promise<void> {
   if (!userId.value) return
   if (problemsLoading.value) return
@@ -118,6 +133,11 @@ async function loadProblems(reset = false): Promise<void> {
   }
 }
 
+/**
+ * Load public collections of the author with paging.
+ * @param reset - Reset paging state and reload from page 1.
+ * @returns Promise resolved when request completes.
+ */
 async function loadCollections(reset = false): Promise<void> {
   if (!userId.value) return
   if (collectionsLoading.value) return
@@ -147,6 +167,10 @@ async function loadCollections(reset = false): Promise<void> {
   }
 }
 
+/**
+ * Load profile + first page of public problems/collections.
+ * @returns Promise resolved when initial loading completes.
+ */
 async function loadAll(): Promise<void> {
   await loadProfile()
   await Promise.all([loadProblems(true), loadCollections(true)])
@@ -170,6 +194,7 @@ watch(userId, () => {
 </script>
 
 <template>
+  <!-- Page: Public user profile -->
   <section class="page page--narrow">
     <header class="page__header">
       <h1 class="page__title">{{ displayName }}</h1>
@@ -259,4 +284,3 @@ watch(userId, () => {
     </div>
   </section>
 </template>
-

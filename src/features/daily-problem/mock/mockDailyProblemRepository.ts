@@ -13,11 +13,20 @@ function sortedDailyProblems(): DailyProblemSummary[] {
   return [...mockStore.dailyProblems].sort((a, b) => b.day.localeCompare(a.day))
 }
 
+/**
+ * Find all daily problems for a given day.
+ * @param day - Day string (YYYY-MM-DD).
+ * @returns Matching daily problems.
+ */
 function findByDay(day: string): DailyProblemSummary[] {
   return mockStore.dailyProblems.filter((item) => item.day === day)
 }
 
 export class MockDailyProblemRepository implements DailyProblemRepository {
+  /**
+   * Get today's daily problem set (mock: latest day in store).
+   * @returns Daily problem summaries.
+   */
   async getToday(): Promise<DailyProblemSummary[]> {
     const sorted = sortedDailyProblems()
     if (!sorted.length) throw new Error('Daily problem not found')
@@ -26,12 +35,22 @@ export class MockDailyProblemRepository implements DailyProblemRepository {
     return findByDay(first.day)
   }
 
+  /**
+   * Get daily problems by day.
+   * @param day - Day string (YYYY-MM-DD).
+   * @returns Daily problem summaries.
+   */
   async getByDay(day: string): Promise<DailyProblemSummary[]> {
     const items = findByDay(day)
     if (!items.length) throw new Error('Daily problem not found')
     return items
   }
 
+  /**
+   * List daily problem history within an optional day range.
+   * @param query - History query.
+   * @returns Paged daily problem summaries.
+   */
   async listHistory(query: DailyProblemHistoryQuery): Promise<PageResponse<DailyProblemSummary>> {
     const filtered = sortedDailyProblems().filter((item) => {
       if (query.from && item.day < query.from) return false

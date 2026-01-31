@@ -1,3 +1,6 @@
+/**
+ * @file Unit tests for get-me use case.
+ */
 import { describe, expect, it } from 'vitest'
 import { createGetMeUseCase } from './getMeUseCase'
 import type { UserRepository } from '../ports/userRepository'

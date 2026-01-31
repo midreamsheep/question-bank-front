@@ -20,10 +20,20 @@ export type HttpCommentRepositoryOptions = {
 export class HttpCommentRepository implements CommentRepository {
   private readonly httpClient: HttpClient
 
+  /**
+   * Create HTTP comment repository.
+   * @param options - Repository options.
+   * @param options.httpClient - HTTP client.
+   */
   constructor(options: HttpCommentRepositoryOptions) {
     this.httpClient = options.httpClient
   }
 
+  /**
+   * List comments for a problem.
+   * @param query - List query.
+   * @returns Paged comments.
+   */
   async list(query: ListProblemCommentsQuery): Promise<PageResponse<ProblemComment>> {
     const response = await this.httpClient.request<ApiResponse<PageResponse<ProblemComment>>>({
       method: 'GET',
@@ -48,6 +58,11 @@ export class HttpCommentRepository implements CommentRepository {
     }
   }
 
+  /**
+   * Create a new comment.
+   * @param input - Create input.
+   * @returns New comment id as string.
+   */
   async create(input: CreateProblemCommentInput): Promise<string> {
     const response = await this.httpClient.request<ApiResponse<unknown>>({
       method: 'POST',

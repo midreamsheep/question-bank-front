@@ -34,6 +34,10 @@ export class HttpAdminRepository implements AdminRepository {
     this.httpClient = options.httpClient
   }
 
+  /**
+   * List categories for admin management.
+   * @returns categories
+   */
   async listCategories(): Promise<Category[]> {
     const response = await this.httpClient.request<ApiResponse<Category[]>>({
       method: 'GET',
@@ -42,6 +46,10 @@ export class HttpAdminRepository implements AdminRepository {
     return unwrapApiResponse(response)
   }
 
+  /**
+   * List problem types for admin management.
+   * @returns problem types
+   */
   async listProblemTypes(): Promise<ProblemType[]> {
     const response = await this.httpClient.request<ApiResponse<ProblemType[]>>({
       method: 'GET',
@@ -50,6 +58,10 @@ export class HttpAdminRepository implements AdminRepository {
     return unwrapApiResponse(response)
   }
 
+  /**
+   * List tags for admin management.
+   * @returns tags
+   */
   async listTags(): Promise<Tag[]> {
     const response = await this.httpClient.request<ApiResponse<Tag[]>>({
       method: 'GET',
@@ -58,6 +70,11 @@ export class HttpAdminRepository implements AdminRepository {
     return unwrapApiResponse(response)
   }
 
+  /**
+   * Create a new category.
+   * @param input create payload
+   * @returns created category
+   */
   async createCategory(input: CreateCategoryInput): Promise<Category> {
     const response = await this.httpClient.request<ApiResponse<Category>>({
       method: 'POST',
@@ -67,6 +84,12 @@ export class HttpAdminRepository implements AdminRepository {
     return unwrapApiResponse(response)
   }
 
+  /**
+   * Update an existing category.
+   * @param id category id
+   * @param input update payload
+   * @returns updated category
+   */
   async updateCategory(id: number, input: UpdateCategoryInput): Promise<Category> {
     const response = await this.httpClient.request<ApiResponse<Category>>({
       method: 'PUT',
@@ -76,6 +99,11 @@ export class HttpAdminRepository implements AdminRepository {
     return unwrapApiResponse(response)
   }
 
+  /**
+   * Create a new problem type.
+   * @param input create payload
+   * @returns created problem type
+   */
   async createProblemType(input: CreateProblemTypeInput): Promise<ProblemType> {
     const response = await this.httpClient.request<ApiResponse<ProblemType>>({
       method: 'POST',
@@ -85,6 +113,12 @@ export class HttpAdminRepository implements AdminRepository {
     return unwrapApiResponse(response)
   }
 
+  /**
+   * Update an existing problem type.
+   * @param id problem type id
+   * @param input update payload
+   * @returns updated problem type
+   */
   async updateProblemType(id: number, input: UpdateProblemTypeInput): Promise<ProblemType> {
     const response = await this.httpClient.request<ApiResponse<ProblemType>>({
       method: 'PUT',
@@ -94,6 +128,11 @@ export class HttpAdminRepository implements AdminRepository {
     return unwrapApiResponse(response)
   }
 
+  /**
+   * Create a new tag.
+   * @param input create payload
+   * @returns created tag
+   */
   async createTag(input: CreateTagInput): Promise<Tag> {
     const response = await this.httpClient.request<ApiResponse<Tag>>({
       method: 'POST',
@@ -103,6 +142,11 @@ export class HttpAdminRepository implements AdminRepository {
     return unwrapApiResponse(response)
   }
 
+  /**
+   * Publish a problem as daily content.
+   * @param input publish payload
+   * @returns daily problem item
+   */
   async publishDailyProblem(input: PublishDailyProblemInput): Promise<DailyProblemItem> {
     const response = await this.httpClient.request<ApiResponse<DailyProblemItem>>({
       method: 'POST',
@@ -117,6 +161,11 @@ export class HttpAdminRepository implements AdminRepository {
     }
   }
 
+  /**
+   * Revoke daily problem by day (may return multiple items).
+   * @param day day string (YYYY-MM-DD)
+   * @returns revoked daily items
+   */
   async revokeDailyProblem(day: string): Promise<DailyProblemItem[]> {
     const response = await this.httpClient.request<ApiResponse<DailyProblemItem[]>>({
       method: 'POST',
@@ -130,6 +179,11 @@ export class HttpAdminRepository implements AdminRepository {
     }))
   }
 
+  /**
+   * Revoke a single daily problem item.
+   * @param id daily item id
+   * @returns revoked daily item
+   */
   async revokeDailyProblemItem(id: string): Promise<DailyProblemItem> {
     const response = await this.httpClient.request<ApiResponse<DailyProblemItem>>({
       method: 'POST',
@@ -143,6 +197,10 @@ export class HttpAdminRepository implements AdminRepository {
     }
   }
 
+  /**
+   * Disable a problem (admin-only operation).
+   * @param id problem id
+   */
   async disableProblem(id: string): Promise<void> {
     const response = await this.httpClient.request<ApiResponse<unknown>>({
       method: 'POST',

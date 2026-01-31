@@ -1,14 +1,13 @@
 /**
  * @file File repository port.
  */
-import type { PresignedUrlResult, UploadFileResult } from '../models'
+import type { ShareKeyResult, UploadFileResult } from '../models'
 
-export type GetPresignedUrlInput = {
+export type GetShareKeyInput = {
   fileId: string
-  expiresSeconds?: number
 }
 
 export type FileRepository = {
   upload(file: File): Promise<UploadFileResult>
-  getPresignedUrl(input: GetPresignedUrlInput): Promise<PresignedUrlResult>
+  getShareKey(input: GetShareKeyInput): Promise<ShareKeyResult>
 }

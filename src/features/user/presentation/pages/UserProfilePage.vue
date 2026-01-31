@@ -18,6 +18,10 @@ const me = ref<UserProfile | null>(null)
 const stats = ref<UserStats | null>(null)
 const loggingOut = ref(false)
 
+/**
+ * Load current profile and stats for the page.
+ * @returns Promise resolved when loading completes.
+ */
 async function loadData(): Promise<void> {
   loading.value = true
   errorMessage.value = ''
@@ -36,6 +40,10 @@ async function loadData(): Promise<void> {
   }
 }
 
+/**
+ * Logout current user and redirect to login page.
+ * @returns Promise resolved after navigation.
+ */
 async function handleLogout(): Promise<void> {
   if (loggingOut.value) return
   loggingOut.value = true
@@ -56,6 +64,7 @@ onMounted(() => {
 </script>
 
 <template>
+  <!-- Page: Profile -->
   <section class="page page--narrow">
     <header class="page__header">
       <h1 class="page__title">账号</h1>

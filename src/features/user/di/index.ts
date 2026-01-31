@@ -39,6 +39,7 @@ export const userDiKey: InjectionKey<UserDi> = Symbol('userDi')
  * Create user DI dependencies.
  * @param options DI options
  * @param options.httpClient HTTP client
+ * @param options.useMock Use mock repositories instead of HTTP ones
  * @returns User DI container
  */
 export function makeUserDi(options: { httpClient: HttpClient; useMock?: boolean }): UserDi {

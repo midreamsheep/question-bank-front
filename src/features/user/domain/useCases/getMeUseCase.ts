@@ -11,6 +11,8 @@ export type GetMeUseCase = {
 
 /**
  * Create get-me use case.
+ * @param repository - User repository.
+ * @returns Use case implementation.
  */
 export function createGetMeUseCase(repository: UserRepository): GetMeUseCase {
   return {

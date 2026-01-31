@@ -37,6 +37,7 @@ async function handleDisable(): Promise<void> {
 </script>
 
 <template>
+  <!-- Page: Admin problems -->
   <section class="page">
     <header class="page__header">
       <h1 class="page__title">题目审核</h1>

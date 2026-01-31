@@ -1,14 +1,17 @@
 /**
  * @file Mock file repository.
  */
-import type { FileRepository } from '../domain/ports/fileRepository'
-import type { PresignedUrlResult, UploadFileResult } from '../domain/models'
-import type { GetPresignedUrlInput } from '../domain/ports/fileRepository'
+import type { FileRepository, GetShareKeyInput } from '../domain/ports/fileRepository'
+import type { ShareKeyResult, UploadFileResult } from '../domain/models'
+import { getMockShareKeyByFileId, setMockFileDataUrl, setMockFileShareKey } from './mockFileRegistry'
 
-const mockFileDataUrlByObjectKey = new Map<string, string>()
-const mockObjectKeyById = new Map<number, string>()
 let nextMockFileId = 1
 
+/**
+ * Convert a File into a data URL for preview in mock mode.
+ * @param file - Browser file object.
+ * @returns Data URL string.
+ */
 async function toDataUrl(file: File): Promise<string> {
   // `FileReader` exists in the browser; mock repo is only used in the frontend runtime.
   return await new Promise<string>((resolve, reject) => {
@@ -20,42 +23,44 @@ async function toDataUrl(file: File): Promise<string> {
 }
 
 export class MockFileRepository implements FileRepository {
+  /**
+   * Upload a file (mock): stores shareKey mapping and optional image data URL.
+   * @param file - File to upload.
+   * @returns Upload result containing id and shareKey.
+   */
   async upload(file: File): Promise<UploadFileResult> {
-    const id = nextMockFileId++
-    const objectKey = `mock/${Date.now()}-${file.name}`
-    mockObjectKeyById.set(id, objectKey)
+    const id = String(nextMockFileId++)
     const shareKey = `mock-share-${id}`
-    let shareUrl = `/api/v1/files/share/${shareKey}`
+    setMockFileShareKey(id, shareKey)
+
     if (file.type.startsWith('image/')) {
       try {
         const dataUrl = await toDataUrl(file)
-        mockFileDataUrlByObjectKey.set(objectKey, dataUrl)
-        // Mock-mode: make <img src="shareUrl"> work without a real server route.
-        shareUrl = dataUrl
+        setMockFileDataUrl(shareKey, dataUrl)
       } catch {
         // Best-effort: keep upload usable even if we can't read bytes.
       }
     }
 
     return {
-      id: String(id),
+      id,
       shareKey,
-      shareUrl,
-      objectKey,
       originalFilename: file.name,
       size: file.size,
       contentType: file.type || 'application/octet-stream',
     }
   }
 
-  async getPresignedUrl(input: GetPresignedUrlInput): Promise<PresignedUrlResult> {
-    const fileId = Number(input.fileId)
-    const objectKey = Number.isFinite(fileId) ? mockObjectKeyById.get(fileId) : undefined
-    if (!objectKey) throw new Error('Unknown fileId')
-    const dataUrl = mockFileDataUrlByObjectKey.get(objectKey)
-    if (dataUrl) return { url: dataUrl }
-    return {
-      url: `https://mock.local/${objectKey}`,
-    }
+  /**
+   * Resolve shareKey by fileId (mock).
+   * @param input - Share key query input.
+   * @returns Share key result.
+   */
+  async getShareKey(input: GetShareKeyInput): Promise<ShareKeyResult> {
+    const fileId = String(input.fileId ?? '').trim()
+    if (!fileId) throw new Error('fileId is required')
+    const shareKey = getMockShareKeyByFileId(fileId)
+    if (!shareKey) throw new Error('Unknown fileId')
+    return { shareKey }
   }
 }

@@ -28,6 +28,7 @@ export const taxonomyDiKey: InjectionKey<TaxonomyDi> = Symbol('taxonomyDi')
  * Create taxonomy DI dependencies.
  * @param options DI options
  * @param options.httpClient HTTP client
+ * @param options.useMock Use mock repositories instead of HTTP ones
  * @returns Taxonomy DI container
  */
 export function makeTaxonomyDi(options: { httpClient: HttpClient; useMock?: boolean }): TaxonomyDi {

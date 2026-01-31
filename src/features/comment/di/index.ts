@@ -17,8 +17,18 @@ export type CommentDi = {
   createUseCase: CreateCommentUseCase
 }
 
+/**
+ * Comment DI injection key.
+ */
 export const commentDiKey: InjectionKey<CommentDi> = Symbol('commentDi')
 
+/**
+ * Create comment DI container.
+ * @param options - DI options.
+ * @param options.httpClient - HTTP client.
+ * @param options.useMock - Use mock repositories instead of HTTP ones.
+ * @returns Comment DI container.
+ */
 export function makeCommentDi(options: { httpClient: HttpClient; useMock?: boolean }): CommentDi {
   const repository = options.useMock
     ? new MockCommentRepository()
@@ -29,9 +39,12 @@ export function makeCommentDi(options: { httpClient: HttpClient; useMock?: boole
   }
 }
 
+/**
+ * Use comment DI container.
+ * @returns Comment DI container.
+ */
 export function useCommentDi(): CommentDi {
   const di = inject(commentDiKey)
   if (!di) throw new Error('Comment DI not provided')
   return di
 }
-

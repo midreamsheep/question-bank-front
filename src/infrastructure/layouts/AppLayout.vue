@@ -3,17 +3,38 @@
  * @file Account layout: user workspace navigation for authenticated pages.
  */
 import { ref } from 'vue'
-import { RouterLink, RouterView } from 'vue-router'
+import { watch } from 'vue'
+import { RouterLink, RouterView, useRoute } from 'vue-router'
 import UserRightPanel from '../../features/user/presentation/components/UserRightPanel.vue'
 import { useLayoutHeaderHeight } from './useLayoutHeaderHeight'
+import MobileNavDrawer from './MobileNavDrawer.vue'
 
 const headerRef = ref<HTMLElement | null>(null)
 useLayoutHeaderHeight(headerRef)
+
+const drawerOpen = ref(false)
+const route = useRoute()
+watch(
+  () => route.fullPath,
+  () => {
+    drawerOpen.value = false
+  },
+)
 </script>
 
 <template>
+  <!-- Layout: Account workspace -->
   <div class="layout layout--app">
     <header ref="headerRef" class="layout__header">
+      <button
+        class="layout__burger"
+        type="button"
+        aria-label="打开菜单"
+        :aria-expanded="drawerOpen"
+        @click="drawerOpen = !drawerOpen"
+      >
+        ☰
+      </button>
       <RouterLink class="layout__brand" to="/">题目分享站</RouterLink>
       <nav class="layout__nav">
         <RouterLink to="/problems">题目</RouterLink>
@@ -24,6 +45,15 @@ useLayoutHeaderHeight(headerRef)
       </nav>
       <UserRightPanel />
     </header>
+    <MobileNavDrawer v-model:open="drawerOpen" title="题目分享站">
+      <template #default="{ close }">
+        <RouterLink to="/problems" @click="close">题目</RouterLink>
+        <RouterLink to="/collections" @click="close">题单</RouterLink>
+        <RouterLink to="/daily" @click="close">每日一题</RouterLink>
+        <RouterLink to="/me/problems" @click="close">我的题目</RouterLink>
+        <RouterLink to="/me/collections" @click="close">我的题单</RouterLink>
+      </template>
+    </MobileNavDrawer>
     <main class="layout__content">
       <RouterView />
     </main>

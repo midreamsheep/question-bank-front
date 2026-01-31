@@ -5,6 +5,7 @@
 </script>
 
 <template>
+  <!-- Page: Admin dashboard -->
   <section class="page">
     <header class="page__header">
       <h1 class="page__title">运营总览</h1>

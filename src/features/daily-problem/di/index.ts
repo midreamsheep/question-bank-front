@@ -31,6 +31,7 @@ export const dailyProblemDiKey: InjectionKey<DailyProblemDi> = Symbol('dailyProb
  * Create daily problem DI dependencies.
  * @param options DI options
  * @param options.httpClient HTTP client
+ * @param options.useMock Use mock repositories instead of HTTP ones
  * @returns Daily problem DI container
  */
 export function makeDailyProblemDi(options: { httpClient: HttpClient; useMock?: boolean }): DailyProblemDi {

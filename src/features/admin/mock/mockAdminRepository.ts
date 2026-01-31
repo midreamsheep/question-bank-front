@@ -18,18 +18,35 @@ import { taxonomyStore } from '../../taxonomy/mock/mockTaxonomyStore'
 import { mockStore } from '../../../infrastructure/mock/mockStore'
 
 export class MockAdminRepository implements AdminRepository {
+  /**
+   * List categories from in-memory mock store.
+   * @returns categories
+   */
   async listCategories(): Promise<Category[]> {
     return taxonomyStore.categories
   }
 
+  /**
+   * List problem types from in-memory mock store.
+   * @returns problem types
+   */
   async listProblemTypes(): Promise<ProblemType[]> {
     return taxonomyStore.problemTypes
   }
 
+  /**
+   * List tags from in-memory mock store.
+   * @returns tags
+   */
   async listTags(): Promise<Tag[]> {
     return taxonomyStore.tags
   }
 
+  /**
+   * Create a category in the mock store.
+   * @param input create payload
+   * @returns created category
+   */
   async createCategory(input: CreateCategoryInput): Promise<Category> {
     const category: Category = {
       id: taxonomyStore.nextCategoryId++,
@@ -41,6 +58,12 @@ export class MockAdminRepository implements AdminRepository {
     return category
   }
 
+  /**
+   * Update a category in the mock store.
+   * @param id category id
+   * @param input update payload
+   * @returns updated category
+   */
   async updateCategory(id: number, input: UpdateCategoryInput): Promise<Category> {
     const index = taxonomyStore.categories.findIndex((item) => item.id === id)
     if (index < 0) throw new Error('Category not found')
@@ -51,6 +74,11 @@ export class MockAdminRepository implements AdminRepository {
     return updated
   }
 
+  /**
+   * Create a problem type in the mock store.
+   * @param input create payload
+   * @returns created problem type
+   */
   async createProblemType(input: CreateProblemTypeInput): Promise<ProblemType> {
     const problemType: ProblemType = {
       id: taxonomyStore.nextProblemTypeId++,
@@ -61,6 +89,12 @@ export class MockAdminRepository implements AdminRepository {
     return problemType
   }
 
+  /**
+   * Update a problem type in the mock store.
+   * @param id problem type id
+   * @param input update payload
+   * @returns updated problem type
+   */
   async updateProblemType(id: number, input: UpdateProblemTypeInput): Promise<ProblemType> {
     const index = taxonomyStore.problemTypes.findIndex((item) => item.id === id)
     if (index < 0) throw new Error('Problem type not found')
@@ -71,6 +105,11 @@ export class MockAdminRepository implements AdminRepository {
     return updated
   }
 
+  /**
+   * Create a tag in the mock store.
+   * @param input create payload
+   * @returns created tag
+   */
   async createTag(input: CreateTagInput): Promise<Tag> {
     const tag: Tag = {
       id: taxonomyStore.nextTagId++,
@@ -81,6 +120,11 @@ export class MockAdminRepository implements AdminRepository {
     return tag
   }
 
+  /**
+   * Publish a daily problem item in the mock store.
+   * @param input publish payload
+   * @returns daily problem item
+   */
   async publishDailyProblem(input: PublishDailyProblemInput): Promise<DailyProblemItem> {
     const problem = mockStore.problems.find((item) => item.id === input.problemId)
     if (!problem) throw new Error('Problem not found')
@@ -107,6 +151,11 @@ export class MockAdminRepository implements AdminRepository {
     return summary
   }
 
+  /**
+   * Revoke daily problems for a given day in the mock store.
+   * @param day day string (YYYY-MM-DD)
+   * @returns removed daily items
+   */
   async revokeDailyProblem(day: string): Promise<DailyProblemItem[]> {
     const removed: DailyProblemItem[] = []
     for (let i = mockStore.dailyProblems.length - 1; i >= 0; i -= 1) {
@@ -119,6 +168,11 @@ export class MockAdminRepository implements AdminRepository {
     return removed
   }
 
+  /**
+   * Revoke a single daily problem item in the mock store.
+   * @param id daily item id
+   * @returns removed daily item
+   */
   async revokeDailyProblemItem(id: string): Promise<DailyProblemItem> {
     const index = mockStore.dailyProblems.findIndex((item) => item.id === id)
     if (index < 0) throw new Error('Daily item not found')
@@ -128,6 +182,10 @@ export class MockAdminRepository implements AdminRepository {
     return current
   }
 
+  /**
+   * Disable a problem in the mock store.
+   * @param id problem id
+   */
   async disableProblem(id: string): Promise<void> {
     const index = mockStore.problems.findIndex((item) => item.id === id)
     if (index < 0) throw new Error('Problem not found')

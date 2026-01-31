@@ -23,9 +23,15 @@ const emit = defineEmits<{
 }>()
 
 const inputRef = ref<HTMLInputElement | null>(null)
+const rootRef = ref<HTMLElement | null>(null)
 const open = ref(false)
 const draft = ref(props.modelValue)
 
+/**
+ * Normalize user input by trimming and applying a max-length limit.
+ * @param value - Raw input.
+ * @returns Normalized value.
+ */
 function normalize(value: string): string {
   const max = props.maxLength ?? 64
   return value.trim().slice(0, max)
@@ -45,10 +51,17 @@ const filtered = computed(() => {
   return uniq.filter((v) => v.toLowerCase().includes(q))
 })
 
+/**
+ * Emit a normalized value to update v-model.
+ * @param value - Raw value.
+ */
 function setValue(value: string): void {
   emit('update:modelValue', normalize(value))
 }
 
+/**
+ * Toggle dropdown open state.
+ */
 function toggle(): void {
   open.value = !open.value
   if (open.value) {
@@ -58,15 +71,24 @@ function toggle(): void {
   }
 }
 
+/**
+ * Close dropdown menu.
+ */
 function close(): void {
   open.value = false
 }
 
+/**
+ * Open menu on input focus.
+ */
 function onFocus(): void {
   open.value = true
   draft.value = props.modelValue
 }
 
+/**
+ * Commit draft on blur, emit blur event, then close menu (async).
+ */
 function onBlur(): void {
   const v = normalize(draft.value)
   setValue(v)
@@ -75,16 +97,31 @@ function onBlur(): void {
   window.setTimeout(() => close(), 0)
 }
 
+/**
+ * Close menu when clicking outside component root.
+ * @param event - Document click event.
+ */
 function onDocumentClick(event: MouseEvent): void {
   const target = event.target
   if (!(target instanceof HTMLElement)) return
-  if (target.closest('.subject-combo') === null) close()
+  const root = rootRef.value
+  if (!root) return
+  if (!root.contains(target)) close()
 }
 
+/**
+ * Close menu on Escape key.
+ * @param event - Keyboard event.
+ */
 function onKeyDown(event: KeyboardEvent): void {
   if (event.key === 'Escape') close()
 }
 
+/**
+ * Provide a small localized hint for known subject codes.
+ * @param value - Subject code.
+ * @returns Hint string.
+ */
 function displayHint(value: string): string {
   if (value === 'MATH') return '数学'
   if (value === 'PHYSICS') return '物理'
@@ -110,7 +147,8 @@ watch(
 </script>
 
 <template>
-  <div class="subject-combo">
+  <!-- Component: subject combobox (input + suggestion menu) -->
+  <div ref="rootRef" class="subject-combo">
     <div class="subject-combo__control">
       <input
         ref="inputRef"

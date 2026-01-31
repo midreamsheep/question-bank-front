@@ -11,6 +11,7 @@ import { useCollectionDi } from '../../../collection/di'
 import { useFileDi } from '../../../file/di'
 import type { UserProfile } from '../../domain/models'
 import { HttpError } from '../../../../infrastructure/http'
+import { toPublicFileUrl } from '../../../file/presentation/utils/fileShareUrl'
 
 const userDi = useUserDi()
 const authDi = useAuthDi()
@@ -41,19 +42,28 @@ const initials = computed(() => {
   return name.slice(0, 1).toUpperCase()
 })
 
+/**
+ * Resolve avatar URL from profile.avatarFileId (best-effort).
+ * @param profile - User profile (nullable).
+ * @returns Promise resolved after avatar is resolved.
+ */
 async function loadAvatar(profile: UserProfile | null): Promise<void> {
   avatarUrl.value = ''
   const fileId = profile?.avatarFileId?.trim?.() ? String(profile.avatarFileId).trim() : ''
   if (!fileId) return
   try {
-    const result = await fileDi.presignedUrlUseCase.execute({ fileId, expiresSeconds: 3600 })
-    avatarUrl.value = result.url
+    const result = await fileDi.shareKeyUseCase.execute({ fileId })
+    avatarUrl.value = toPublicFileUrl({ shareKey: result.shareKey })
   } catch {
     // Best-effort: fall back to initials.
     avatarUrl.value = ''
   }
 }
 
+/**
+ * Load current user profile for the panel and reset derived stats.
+ * @returns Promise resolved when loading completes.
+ */
 async function loadMe(): Promise<void> {
   loading.value = true
   try {
@@ -77,6 +87,10 @@ async function loadMe(): Promise<void> {
   }
 }
 
+/**
+ * Logout current user and redirect to login page.
+ * @returns Promise resolved after navigation.
+ */
 async function handleLogout(): Promise<void> {
   try {
     await authDi.logoutUseCase.execute()
@@ -88,6 +102,10 @@ async function handleLogout(): Promise<void> {
   }
 }
 
+/**
+ * Load lightweight stats (problem count / collection count) once per open session.
+ * @returns Promise resolved when stats load finishes.
+ */
 async function loadStats(): Promise<void> {
   if (statsLoading.value) return
   if (statsLoaded.value) return
@@ -109,21 +127,35 @@ async function loadStats(): Promise<void> {
   }
 }
 
+/**
+ * Navigate to a path and close the menu.
+ * @param path - Router target path.
+ */
 function go(path: string): void {
   closeMenu()
   void router.push(path)
 }
 
+/**
+ * Toggle user menu open state.
+ */
 function toggleMenu(): void {
   if (loading.value) return
   menuOpen.value = !menuOpen.value
   if (menuOpen.value) void loadStats()
 }
 
+/**
+ * Close user menu.
+ */
 function closeMenu(): void {
   menuOpen.value = false
 }
 
+/**
+ * Close menu when clicking outside the panel.
+ * @param event - Document click event.
+ */
 function onDocumentClick(event: MouseEvent): void {
   const target = event.target
   if (!(target instanceof HTMLElement)) return
@@ -132,10 +164,18 @@ function onDocumentClick(event: MouseEvent): void {
   }
 }
 
+/**
+ * Close menu on Escape key.
+ * @param event - Keyboard event.
+ */
 function onKeyDown(event: KeyboardEvent): void {
   if (event.key === 'Escape') closeMenu()
 }
 
+/**
+ * Update in-memory profile when an external profile update event is emitted.
+ * @param event - Custom event with `UserProfile` detail.
+ */
 function onMeUpdated(event: Event): void {
   const e = event as CustomEvent<UserProfile>
   if (!e.detail) return
@@ -160,6 +200,7 @@ onUnmounted(() => {
 </script>
 
 <template>
+  <!-- Component: user panel (chip + menu) -->
   <div class="user-panel">
     <button class="user-panel__chip" type="button" :disabled="loading" @click="toggleMenu">
       <span class="user-panel__avatar" aria-hidden="true">

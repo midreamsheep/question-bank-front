@@ -25,6 +25,11 @@ const statusLabels: Record<ProblemStatus, string> = {
   DISABLED: '已下架',
 }
 
+/**
+ * Display-friendly subject label.
+ * @param value - Subject enum value.
+ * @returns Localized label.
+ */
 function formatSubject(value: string): string {
   if (value === 'MATH') return '数学'
   if (value === 'PHYSICS') return '物理'
@@ -54,6 +59,10 @@ const totalPages = computed(() => {
 const canPrev = computed(() => page.value > 1)
 const canNext = computed(() => page.value < totalPages.value)
 
+/**
+ * Load current page data based on tab + paging state.
+ * @returns Promise resolved when data is loaded.
+ */
 async function load(): Promise<void> {
   loading.value = true
   errorMessage.value = ''
@@ -71,19 +80,36 @@ async function load(): Promise<void> {
   }
 }
 
+/**
+ * Switch list status filter tab.
+ * @param key - Target tab key.
+ */
 function handleSwitchTab(key: TabKey): void {
   activeTab.value = key
   page.value = 1
 }
 
+/**
+ * Navigate to the problem creation page.
+ */
 function handleCreate(): void {
   void router.push('/me/problems/new')
 }
 
+/**
+ * Determine whether the current user can edit a given summary row.
+ * @param item - Problem summary item.
+ * @returns True if editable.
+ */
 function canEdit(item: ProblemSummary): boolean {
   return item.status === 'DRAFT' || item.status === 'PUBLISHED' || item.status === 'DISABLED'
 }
 
+/**
+ * Delete a draft problem (confirmed).
+ * @param item - Problem summary item.
+ * @returns Promise resolved when deletion finishes.
+ */
 async function handleDelete(item: ProblemSummary): Promise<void> {
   if (item.status !== 'DRAFT') return
   const ok = window.confirm('确定删除该草稿吗？此操作不可恢复。')
@@ -101,6 +127,11 @@ async function handleDelete(item: ProblemSummary): Promise<void> {
   }
 }
 
+/**
+ * Publish a draft problem or re-publish a disabled problem.
+ * @param item - Problem summary item.
+ * @returns Promise resolved when publish finishes.
+ */
 async function handlePublish(item: ProblemSummary): Promise<void> {
   // Backend semantics: author can publish from DRAFT or re-publish from DISABLED.
   if (item.status !== 'DRAFT' && item.status !== 'DISABLED') return
@@ -117,6 +148,11 @@ async function handlePublish(item: ProblemSummary): Promise<void> {
   }
 }
 
+/**
+ * Disable (take down) a published problem (confirmed).
+ * @param item - Problem summary item.
+ * @returns Promise resolved when disabling finishes.
+ */
 async function handleDisable(item: ProblemSummary): Promise<void> {
   if (item.status !== 'PUBLISHED') return
   const ok = window.confirm('确定下架该题目吗？下架后将变为“已下架”。')
@@ -134,16 +170,26 @@ async function handleDisable(item: ProblemSummary): Promise<void> {
   }
 }
 
+/**
+ * Navigate to editor page for a given problem.
+ * @param item - Problem summary item.
+ */
 function handleEdit(item: ProblemSummary): void {
   if (!canEdit(item)) return
   void router.push(`/me/problems/${item.id}/edit`)
 }
 
+/**
+ * Navigate to previous page in pagination.
+ */
 function handlePrev(): void {
   if (!canPrev.value) return
   page.value -= 1
 }
 
+/**
+ * Navigate to next page in pagination.
+ */
 function handleNext(): void {
   if (!canNext.value) return
   page.value += 1
@@ -159,6 +205,7 @@ onMounted(() => {
 </script>
 
 <template>
+  <!-- Page: My problems -->
   <section class="page">
     <header class="page__header">
       <h1 class="page__title">我的题目</h1>

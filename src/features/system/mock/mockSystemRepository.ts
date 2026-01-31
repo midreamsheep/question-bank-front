@@ -5,6 +5,10 @@ import type { SystemRepository } from '../domain/ports/systemRepository'
 import type { HealthStatus } from '../domain/models'
 
 export class MockSystemRepository implements SystemRepository {
+  /**
+   * Check backend health status (mock).
+   * @returns Health status.
+   */
   async checkHealth(): Promise<HealthStatus> {
     return { ok: true }
   }

@@ -6,8 +6,8 @@ import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserDi } from '../../di'
 import { useFileDi } from '../../../file/di'
-import { runtimeConfig } from '../../../../infrastructure/config/runtimeConfig'
 import type { UserProfile } from '../../domain/models'
+import { toPublicFileUrl } from '../../../file/presentation/utils/fileShareUrl'
 
 const userDi = useUserDi()
 const fileDi = useFileDi()
@@ -32,18 +32,10 @@ const avatarFallbackText = computed(() => {
   return base.trim().slice(0, 1).toUpperCase()
 })
 
-function resolveContentUrl(rawUrl: string): string {
-  const trimmed = String(rawUrl).trim()
-  if (!trimmed) return ''
-  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return trimmed
-  if (trimmed.startsWith('/')) {
-    const base =
-      runtimeConfig.apiBaseUrl.startsWith('http') ? runtimeConfig.apiBaseUrl : window.location.origin
-    return new URL(trimmed, base).toString()
-  }
-  return trimmed
-}
-
+/**
+ * Load current user profile and initialize form fields.
+ * @returns Promise resolved when loading completes.
+ */
 async function loadMe(): Promise<void> {
   loading.value = true
   errorMessage.value = ''
@@ -63,6 +55,10 @@ async function loadMe(): Promise<void> {
   }
 }
 
+/**
+ * Validate current form state.
+ * @returns Error message if invalid, otherwise null.
+ */
 function validate(): string | null {
   const nextNickname = nicknameTrimmed.value
   if (!nextNickname) return '昵称为必填。'
@@ -72,11 +68,19 @@ function validate(): string | null {
   return null
 }
 
+/**
+ * Open native file picker for avatar upload.
+ */
 function openAvatarPicker(): void {
   if (avatarUploading.value) return
   avatarInputRef.value?.click()
 }
 
+/**
+ * Handle avatar file selection and upload it.
+ * @param event - File input change event.
+ * @returns Promise resolved when upload finishes.
+ */
 async function handleAvatarPick(event: Event): Promise<void> {
   const input = event.target as HTMLInputElement
   const file = input.files?.[0]
@@ -88,9 +92,9 @@ async function handleAvatarPick(event: Event): Promise<void> {
   try {
     const uploaded = await fileDi.uploadUseCase.execute(file)
     avatarFileId.value = uploaded.id
-    avatarPreviewUrl.value = resolveContentUrl(uploaded.shareUrl)
+    avatarPreviewUrl.value = toPublicFileUrl(uploaded)
     if (!avatarPreviewUrl.value) {
-      errorMessage.value = '头像上传成功，但服务端未返回 shareUrl，无法预览（请检查 files upload 响应字段）。'
+      errorMessage.value = '头像上传成功，但未能生成可访问的预览链接（shareKey 缺失）。'
     }
     successMessage.value = '头像已上传，记得点击“保存”。'
   } catch (error) {
@@ -102,11 +106,18 @@ async function handleAvatarPick(event: Event): Promise<void> {
   }
 }
 
+/**
+ * Clear avatar selection from the form.
+ */
 function handleClearAvatar(): void {
   avatarFileId.value = ''
   avatarPreviewUrl.value = ''
 }
 
+/**
+ * Persist profile changes to backend.
+ * @returns Promise resolved after save + navigation.
+ */
 async function handleSave(): Promise<void> {
   const message = validate()
   if (message) {
@@ -140,6 +151,7 @@ onMounted(() => {
 </script>
 
 <template>
+  <!-- Page: Profile edit -->
   <section class="page page--narrow">
     <header class="page__header">
       <h1 class="page__title">编辑资料</h1>

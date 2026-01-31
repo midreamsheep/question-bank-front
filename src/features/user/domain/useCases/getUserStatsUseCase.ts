@@ -9,6 +9,11 @@ export type GetUserStatsUseCase = {
   execute(): Promise<UserStats>
 }
 
+/**
+ * Create get-user-stats use case.
+ * @param repository - User repository.
+ * @returns Use case implementation.
+ */
 export function createGetUserStatsUseCase(repository: UserRepository): GetUserStatsUseCase {
   return {
     async execute(): Promise<UserStats> {
@@ -16,4 +21,3 @@ export function createGetUserStatsUseCase(repository: UserRepository): GetUserSt
     },
   }
 }
-

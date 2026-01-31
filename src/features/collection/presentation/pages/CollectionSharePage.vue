@@ -46,6 +46,7 @@ watch(shareKey, () => {
 </script>
 
 <template>
+  <!-- Page: Collection share -->
   <section class="page">
     <header class="page__header">
       <h1 class="page__title">{{ detail?.name ?? '分享题单' }}</h1>

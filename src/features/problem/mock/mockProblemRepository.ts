@@ -8,7 +8,6 @@ import type {
   ProblemCreateResponse,
   ProblemDetail,
   ProblemListQuery,
-  PublishProblemInput,
   ProblemTag,
   ProblemStatusResponse,
   ProblemSummary,
@@ -17,6 +16,11 @@ import type {
 import { mockStore } from '../../../infrastructure/mock/mockStore'
 import { taxonomyStore } from '../../taxonomy/mock/mockTaxonomyStore'
 
+/**
+ * Convert a detailed problem entity to a list summary.
+ * @param problem problem detail
+ * @returns problem summary
+ */
 function toSummary(problem: ProblemDetail): ProblemSummary {
   const tags = resolveTags(problem.tagIds)
   return {
@@ -33,6 +37,11 @@ function toSummary(problem: ProblemDetail): ProblemSummary {
   }
 }
 
+/**
+ * Resolve tag ids into tag objects using the mock taxonomy store.
+ * @param tagIds tag ids
+ * @returns tags
+ */
 function resolveTags(tagIds?: number[] | null): ProblemTag[] {
   if (!tagIds?.length) return []
   const map = new Map(taxonomyStore.tags.map((t) => [t.id, t.name]))
@@ -41,6 +50,13 @@ function resolveTags(tagIds?: number[] | null): ProblemTag[] {
     .filter((t) => t.name.trim().length > 0)
 }
 
+/**
+ * Merge existing tag ids with newly provided tag names (create if missing).
+ * @param subject subject scope
+ * @param tagIds selected tag ids
+ * @param newTags new tag names
+ * @returns merged tag ids
+ */
 function ensureTagIdsWithNewTags(subject: string, tagIds: number[], newTags?: string[]): number[] {
   const cleaned = (newTags ?? [])
     .map((t) => t.trim())
@@ -63,6 +79,24 @@ function ensureTagIdsWithNewTags(subject: string, tagIds: number[], newTags?: st
   return Array.from(merged)
 }
 
+/**
+ * Resolve tag names into tag ids (create if missing).
+ * @param subject - Subject scope.
+ * @param names - Tag names.
+ * @returns Tag ids.
+ */
+function resolveTagIdsFromNames(subject: string, names: string[]): number[] {
+  const cleaned = names
+    .map((t) => t.trim())
+    .filter((t) => t.length > 0)
+  if (!cleaned.length) return []
+  return ensureTagIdsWithNewTags(subject, [], cleaned)
+}
+
+/**
+ * Ensure a shareKey exists for unlisted problems (mock behavior).
+ * @param problem problem detail (mutated)
+ */
 function ensureShareKey(problem: ProblemDetail): void {
   // Decision: shareKey is generated when UNLISTED, and kept even if visibility changes later.
   if (problem.visibility === 'UNLISTED' && !problem.shareKey) {
@@ -71,6 +105,11 @@ function ensureShareKey(problem: ProblemDetail): void {
 }
 
 export class MockProblemRepository implements ProblemRepository {
+  /**
+   * List public published problems (mock).
+   * @param query list query
+   * @returns paged summaries
+   */
   async list(query: ProblemListQuery): Promise<PageResponse<ProblemSummary>> {
     const keyword = query.keyword?.toLowerCase()
     const subject = query.subject
@@ -104,6 +143,11 @@ export class MockProblemRepository implements ProblemRepository {
     }
   }
 
+  /**
+   * List problems owned by the current user (mock).
+   * @param query list query
+   * @returns paged summaries
+   */
   async listMine(query: ProblemListQuery): Promise<PageResponse<ProblemSummary>> {
     const keyword = query.keyword?.toLowerCase().trim()
     const subject = query.subject
@@ -148,20 +192,36 @@ export class MockProblemRepository implements ProblemRepository {
     return { items: summaries, page, pageSize, total }
   }
 
+  /**
+   * Get problem detail by id (mock).
+   * @param id problem id
+   * @returns problem detail
+   */
   async getDetail(id: string): Promise<ProblemDetail> {
     const found = mockStore.problems.find((item) => item.id === id)
     if (!found) throw new Error('Problem not found')
     return { ...found, tagIds: found.tagIds ?? [], tags: resolveTags(found.tagIds) }
   }
 
+  /**
+   * Get problem detail by shareKey (mock).
+   * @param shareKey share key
+   * @returns problem detail
+   */
   async getByShareKey(shareKey: string): Promise<ProblemDetail> {
     const found = mockStore.problems.find((item) => item.shareKey === shareKey)
     if (!found) throw new Error('Problem not found')
     return { ...found, tagIds: found.tagIds ?? [], tags: resolveTags(found.tagIds) }
   }
 
+  /**
+   * Create a draft problem (mock).
+   * @param input create payload
+   * @returns create response
+   */
   async create(input: CreateProblemInput): Promise<ProblemCreateResponse> {
     const id = String(mockStore.nextProblemId++)
+    const { tags: inputTags, ...rest } = input
     const problem: ProblemDetail = {
       id,
       status: 'DRAFT',
@@ -171,9 +231,9 @@ export class MockProblemRepository implements ProblemRepository {
         id: mockStore.user.id,
         nickname: mockStore.user.nickname || mockStore.user.username,
       },
-      ...input,
+      ...rest,
     }
-    problem.tagIds = input.tagIds ?? []
+    problem.tagIds = Array.isArray(inputTags) ? resolveTagIdsFromNames(problem.subject, inputTags) : []
     problem.tags = resolveTags(problem.tagIds)
     ensureShareKey(problem)
     mockStore.problems.unshift(problem)
@@ -186,16 +246,30 @@ export class MockProblemRepository implements ProblemRepository {
     return response
   }
 
+  /**
+   * Update a problem (mock).
+   * @param id problem id
+   * @param input update payload
+   * @returns status response
+   */
   async update(id: string, input: UpdateProblemInput): Promise<ProblemStatusResponse> {
     const index = mockStore.problems.findIndex((item) => item.id === id)
     if (index < 0) throw new Error('Problem not found')
     const current = mockStore.problems[index]
     if (!current) throw new Error('Problem not found')
+    const { tags: inputTags, ...rest } = input
     const updated: ProblemDetail = {
       ...current,
-      ...input,
+      ...rest,
     }
-    updated.tagIds = input.tagIds ?? updated.tagIds ?? []
+    if (Array.isArray(inputTags)) {
+      updated.tagIds = resolveTagIdsFromNames(updated.subject, inputTags)
+    } else if (inputTags === null) {
+      // Null/absent tags means keep existing (mock mirrors backend semantics).
+      updated.tagIds = updated.tagIds ?? []
+    } else {
+      updated.tagIds = updated.tagIds ?? []
+    }
     updated.tags = resolveTags(updated.tagIds)
     ensureShareKey(updated)
     mockStore.problems[index] = updated
@@ -207,23 +281,24 @@ export class MockProblemRepository implements ProblemRepository {
     }
   }
 
-  async publish(id: string, input?: PublishProblemInput): Promise<ProblemStatusResponse> {
+  /**
+   * Publish a problem (mock).
+   * @param id - Problem id.
+   * @returns Status response.
+   */
+  async publish(id: string): Promise<ProblemStatusResponse> {
     const index = mockStore.problems.findIndex((item) => item.id === id)
     if (index < 0) throw new Error('Problem not found')
     const current = mockStore.problems[index]
     if (!current) throw new Error('Problem not found')
-    const nextSubjectRaw = String((input?.subject ?? current.subject) ?? '').trim()
-    const nextSubject = nextSubjectRaw || current.subject
-    const baseTagIds = input?.tagIds ?? current.tagIds ?? []
-    const mergedTagIds = ensureTagIdsWithNewTags(nextSubject, baseTagIds, input?.newTags)
     const updated: ProblemDetail = {
       ...current,
-      subject: nextSubject,
-      tagIds: mergedTagIds,
-      tags: resolveTags(mergedTagIds),
       status: 'PUBLISHED',
       publishedAt: current.publishedAt ?? new Date().toISOString(),
     }
+    updated.tagIds = updated.tagIds ?? []
+    updated.tags = resolveTags(updated.tagIds)
+    ensureShareKey(updated)
     mockStore.problems[index] = updated
     return {
       id: updated.id,
@@ -233,6 +308,11 @@ export class MockProblemRepository implements ProblemRepository {
     }
   }
 
+  /**
+   * Disable a problem (mock).
+   * @param id problem id
+   * @returns status response
+   */
   async disable(id: string): Promise<ProblemStatusResponse> {
     const index = mockStore.problems.findIndex((item) => item.id === id)
     if (index < 0) throw new Error('Problem not found')
@@ -250,6 +330,10 @@ export class MockProblemRepository implements ProblemRepository {
     }
   }
 
+  /**
+   * Delete a problem draft (mock).
+   * @param id problem id
+   */
   async delete(id: string): Promise<void> {
     const index = mockStore.problems.findIndex((item) => item.id === id)
     if (index < 0) throw new Error('Problem not found')

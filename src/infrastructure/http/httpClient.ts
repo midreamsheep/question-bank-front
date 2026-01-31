@@ -39,10 +39,20 @@ export type HttpClient = {
   request<T>(options: HttpRequestOptions): Promise<T>
 }
 
+/**
+ * Check whether a Content-Type indicates JSON payload.
+ * @param contentType - Content-Type header value.
+ * @returns True if JSON-like.
+ */
 function isJsonContentType(contentType: string): boolean {
   return contentType.includes('application/json') || contentType.includes('+json')
 }
 
+/**
+ * Check whether an integer literal can be represented safely as a JS Number.
+ * @param value - Integer token as string.
+ * @returns True if safe to keep as number.
+ */
 function isSafeIntegerString(value: string): boolean {
   const trimmed = value.trim()
   if (!trimmed) return true
@@ -62,8 +72,10 @@ function isSafeIntegerString(value: string): boolean {
 
 /**
  * Parse JSON text but preserve integers beyond Number.MAX_SAFE_INTEGER as strings.
- *
  * This prevents JS Number precision loss for 64-bit ids (Snowflake, etc.).
+ * This prevents JS Number precision loss for 64-bit ids (Snowflake, etc.).
+ * @param text - Raw JSON text.
+ * @returns Parsed JSON object.
  */
 function parseJsonPreserveBigInt(text: string): unknown {
   let out = ''

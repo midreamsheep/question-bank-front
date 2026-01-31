@@ -2,10 +2,10 @@
  * @file Publish problem use case.
  */
 import type { ProblemRepository } from '../ports/problemRepository'
-import type { PublishProblemInput, ProblemStatusResponse } from '../models'
+import type { ProblemStatusResponse } from '../models'
 
 export type PublishProblemUseCase = {
-  execute(id: string, input?: PublishProblemInput): Promise<ProblemStatusResponse>
+  execute(id: string): Promise<ProblemStatusResponse>
 }
 
 /**
@@ -15,8 +15,8 @@ export type PublishProblemUseCase = {
  */
 export function createPublishProblemUseCase(repository: ProblemRepository): PublishProblemUseCase {
   return {
-    async execute(id: string, input?: PublishProblemInput): Promise<ProblemStatusResponse> {
-      return repository.publish(id, input)
+    async execute(id: string): Promise<ProblemStatusResponse> {
+      return repository.publish(id)
     },
   }
 }

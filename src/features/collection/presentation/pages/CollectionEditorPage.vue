@@ -176,6 +176,7 @@ onMounted(() => {
 </script>
 
 <template>
+  <!-- Page: Collection editor -->
   <section class="page page--narrow">
     <header class="page__header">
       <h1 class="page__title">题单编辑</h1>

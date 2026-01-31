@@ -24,6 +24,12 @@ const loading = ref(false)
 const errorMessage = ref('')
 const result = ref<PageResponse<ProblemSummary> | null>(null)
 const tags = ref<Tag[]>([])
+
+/**
+ * Display-friendly subject label.
+ * @param value - Subject enum value.
+ * @returns Localized label.
+ */
 function formatSubject(value?: string): string {
   if (!value) return ''
   if (value === 'MATH') return '数学'
@@ -31,6 +37,11 @@ function formatSubject(value?: string): string {
   return value
 }
 
+/**
+ * Display-friendly author label.
+ * @param author - Author object.
+ * @returns Best-effort author display string.
+ */
 function formatAuthor(author?: ProblemSummary['author'] | null): string {
   if (!author) return '-'
   const displayName = author.displayName?.trim()
@@ -40,10 +51,16 @@ function formatAuthor(author?: ProblemSummary['author'] | null): string {
   return author.id ? `用户 ${author.id}` : '-'
 }
 
+/**
+ * Clear selected tag filters.
+ */
 function clearTagFilters(): void {
   tagIds.value = []
 }
 
+/**
+ * Load recent subject suggestions from localStorage.
+ */
 function loadSubjectSuggestions(): void {
   try {
     const raw = localStorage.getItem(SUBJECT_SUGGESTIONS_KEY)
@@ -63,6 +80,10 @@ function loadSubjectSuggestions(): void {
   }
 }
 
+/**
+ * Save a subject into recent suggestions.
+ * @param value - Subject string value.
+ */
 function rememberSubject(value: string): void {
   const cleaned = value.trim().slice(0, 64)
   if (!cleaned) return
@@ -75,6 +96,11 @@ function rememberSubject(value: string): void {
   }
 }
 
+/**
+ * Normalize subject input for querying.
+ * @param value - Raw subject value.
+ * @returns Normalized subject string.
+ */
 function normalizeSubject(value: string): string {
   return value.trim().slice(0, 64)
 }
@@ -107,20 +133,34 @@ const filteredTags = computed(() => {
   return tags.value.filter((t) => t.name.toLowerCase().includes(kw))
 })
 
+/**
+ * Toggle tag dropdown menu.
+ */
 function toggleTagMenu(): void {
   tagMenuOpen.value = !tagMenuOpen.value
 }
 
+/**
+ * Close tag dropdown menu.
+ */
 function closeTagMenu(): void {
   tagMenuOpen.value = false
 }
 
+/**
+ * Close menu when clicking outside the tag filter container.
+ * @param event - Document click event.
+ */
 function onDocumentClick(event: MouseEvent): void {
   const target = event.target
   if (!(target instanceof HTMLElement)) return
   if (target.closest('.tag-filter') === null) closeTagMenu()
 }
 
+/**
+ * Handle global keydown interactions.
+ * @param event - Keyboard event.
+ */
 function onKeyDown(event: KeyboardEvent): void {
   if (event.key === 'Escape') closeTagMenu()
 }
@@ -187,14 +227,16 @@ watch(subject, () => {
 </script>
 
 <template>
-  <section class="page">
+  <!-- Page: Problem list -->
+  <section class="page problem-list">
     <header class="page__header">
       <h1 class="page__title">题库</h1>
     </header>
-    <div class="card card--stack">
-      <div class="filters">
-        <label class="field">
-          <span>学科</span>
+    <div class="card card--stack problem-list__panel">
+      <!-- Filters: compact toolbar -->
+      <div class="problem-list__filters">
+        <label class="field problem-list__field">
+          <span class="sr-only">学科</span>
           <SubjectCombobox
             v-model="subject"
             :options="subjectSuggestions"
@@ -204,8 +246,8 @@ watch(subject, () => {
             @blur="(v) => rememberSubject(v)"
           />
         </label>
-        <label class="field">
-          <span>标签</span>
+        <label class="field problem-list__field">
+          <span class="sr-only">标签</span>
           <div class="tag-filter">
             <button class="select-like" type="button" @click="toggleTagMenu">
               <span class="select-like__value">{{ tagButtonLabel }}</span>
@@ -243,26 +285,36 @@ watch(subject, () => {
             </div>
           </div>
         </label>
-        <label class="field">
-          <span>关键词</span>
-          <input v-model="keyword" type="text" placeholder="搜索标题" />
+        <label class="field problem-list__field problem-list__field--keyword">
+          <span class="sr-only">关键词</span>
+          <input v-model="keyword" type="text" placeholder="搜索标题 / 作者" @keydown.enter="loadProblems" />
         </label>
-        <button class="button" :class="{ 'button--busy': loading }" :disabled="loading" @click="loadProblems">
+        <button
+          class="button problem-list__search"
+          :class="{ 'button--busy': loading }"
+          :disabled="loading"
+          @click="loadProblems"
+        >
           {{ loading ? '搜索中...' : '搜索' }}
         </button>
       </div>
+
       <p v-if="errorMessage" class="helper helper--error">{{ errorMessage }}</p>
       <p v-else-if="loading" class="helper">加载中...</p>
       <template v-else>
-        <ul v-if="result?.items?.length" class="list">
-          <li v-for="item in result.items" :key="item.id" class="list__item">
-            <div>
-              <strong>{{ item.title }}</strong>
-              <p class="helper">
-                {{ formatSubject(item.subject) }} · 难度 {{ item.difficulty }} · 作者：{{ formatAuthor(item.author) }}
-              </p>
-            </div>
-            <router-link class="link" :to="`/problems/${item.id}`">查看</router-link>
+        <!-- Results: dense list items (single-click open) -->
+        <ul v-if="result?.items?.length" class="problem-list__list">
+          <li v-for="item in result.items" :key="item.id" class="problem-list__item">
+            <router-link class="problem-list__link" :to="`/problems/${item.id}`">
+              <div class="problem-list__titleRow">
+                <strong class="problem-list__title">{{ item.title }}</strong>
+                <span class="problem-list__meta">
+                  <span class="problem-list__chip">{{ formatSubject(item.subject) }}</span>
+                  <span class="problem-list__chip problem-list__chip--muted">难度 {{ item.difficulty }}</span>
+                </span>
+              </div>
+              <span class="problem-list__byline">作者：{{ formatAuthor(item.author) }}</span>
+            </router-link>
           </li>
         </ul>
         <p v-else class="helper">暂无题目。</p>

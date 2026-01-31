@@ -9,6 +9,11 @@ export type ListCommentsUseCase = {
   execute(query: ListProblemCommentsQuery): Promise<PageResponse<ProblemComment>>
 }
 
+/**
+ * Create list-comments use case.
+ * @param repository - Comment repository.
+ * @returns Use case implementation.
+ */
 export function createListCommentsUseCase(repository: CommentRepository): ListCommentsUseCase {
   return {
     async execute(query: ListProblemCommentsQuery): Promise<PageResponse<ProblemComment>> {

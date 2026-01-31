@@ -36,6 +36,7 @@ export const authDiKey: InjectionKey<AuthDi> = Symbol('authDi')
  * @param options DI options
  * @param options.httpClient HTTP client
  * @param options.storage JSON storage
+ * @param options.useMock Use mock repositories instead of HTTP ones
  * @returns Auth DI container
  */
 export function makeAuthDi(options: {
@@ -74,6 +75,9 @@ export const loginRoute: RouteRecordRaw = {
   meta: { allowAnonymous: true },
 }
 
+/**
+ * Public route for registration.
+ */
 export const registerRoute: RouteRecordRaw = {
   path: '/register',
   name: 'register',

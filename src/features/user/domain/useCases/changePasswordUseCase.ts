@@ -9,6 +9,11 @@ export type ChangePasswordUseCase = {
   execute(input: ChangePasswordInput): Promise<void>
 }
 
+/**
+ * Create change-password use case.
+ * @param repository - User repository.
+ * @returns Use case implementation.
+ */
 export function createChangePasswordUseCase(repository: UserRepository): ChangePasswordUseCase {
   return {
     async execute(input: ChangePasswordInput): Promise<void> {
@@ -16,4 +21,3 @@ export function createChangePasswordUseCase(repository: UserRepository): ChangeP
     },
   }
 }
-

@@ -19,6 +19,11 @@ const updateId = ref('')
 const updateName = ref('')
 const updateSubject = ref('')
 
+/**
+ * Format a subject code for display.
+ * @param value - Subject code.
+ * @returns Display label.
+ */
 function formatSubject(value?: string | null): string {
   if (!value) return '全部'
   if (value === 'MATH') return '数学'
@@ -101,6 +106,7 @@ onMounted(() => {
 </script>
 
 <template>
+  <!-- Page: Admin problem types -->
   <section class="page">
     <header class="page__header">
       <h1 class="page__title">题型管理</h1>
